@@ -7,6 +7,13 @@ class PatientCreate(BaseModel):
     first_name: str
     last_name: str
 
+class MedicationCreate(BaseModel):
+    drug_name : str
+    strength : str
+    directions : str
+medications = [
+
+]
 patients = [
     {"id": 1, "first_name": "John", "last_name": "Doe"},
     {"id": 2, "first_name": "Maria", "last_name": "Garcia"}
@@ -58,3 +65,38 @@ def update_patient(patient_id: int, patient_update: PatientCreate):
 
             patient["first_name"] = patient_update.first_name
             patient["last_name"] = patient_update.last_name
+
+@app.get("/patients/{patient_id}/medications")
+def get_medication(patient_id: int):
+    for patient in patients:
+        if patient["id"] ==  patient_id:
+            patient_medications = []
+
+            for medication in medications:
+                if medication["patient_id"] == patient_id:
+                    patient_medications.append(medication)
+
+            return patient_medications
+    raise HTTPException(status_code=404,detail="Patient not found.")
+
+@app.post("/patients/{patient_id}/medications")
+def post_medication(patient_id:int,medication: MedicationCreate):
+    for patient in patients:
+        if patient["id"] == patient_id:
+            new_medication_id = len(medications) + 1
+            new_medication = {
+                "id": new_medication_id,
+                "patient_id": patient_id,
+                "drug_name": medication.drug_name,
+                "strength": medication.strength,
+                "directions": medication.directions
+
+            }
+            medications.append(new_medication)
+            return new_medication
+
+    
+    raise HTTPException(status_code=404,detail="Patient not found.")
+
+
+
